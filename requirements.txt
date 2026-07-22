@@ -1,0 +1,6 @@
+flask
+pandas
+numpy
+rdkit
+edlib
+requests

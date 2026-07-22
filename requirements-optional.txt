@@ -1,0 +1,10 @@
+# Not needed to run the dossier_server web app itself. Only needed for:
+#   - dossier/generate_dossier.py, generate_all.py, fetch_structures.py
+#     (offline per-candidate report generation)
+biopython
+matplotlib
+
+# Only needed for master_surveyor/scripts/esmfold_server.py and
+# esmfold_predict.py (local GPU ESMFold structure prediction).
+torch
+transformers
