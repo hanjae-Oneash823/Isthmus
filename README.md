@@ -1,4 +1,4 @@
-<img src="dossier_server/static/images/Isthmus_logo.png" alt="Isthmus logo" width="96">
+<img src="dossier_server/static/images/README_logo.png" alt="Isthmus logo" width="480">
 
 # Isthmus
 
