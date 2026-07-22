@@ -1,3 +1,5 @@
+<img src="dossier_server/static/images/Isthmus_logo.png" alt="Isthmus logo" width="96">
+
 # Isthmus
 
 Flask web app for browsing `master_surveyor` hits: filter/select transcripts
