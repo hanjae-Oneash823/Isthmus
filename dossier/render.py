@@ -903,6 +903,7 @@ def drug_table_section(row: pd.Series) -> str:
         dgidb_n = int(dgidb_n)
         dgidb = (f'<div style="font-size:24px; font-weight:700;">{dgidb_n}</div>'
                  f'<div class="subtle">interaction{"s" if dgidb_n != 1 else ""}</div>')
+        dgidb += _drug_field(row, "Drugs", "dgidb_drug_names")
         cards.append(_drug_card("DGIdb", dgidb, True))
 
     body = (

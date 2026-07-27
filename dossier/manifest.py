@@ -88,6 +88,7 @@ def format_record(r: pd.Series, n_alts: int, filename: str) -> dict:
         # check has_text explicitly rather than relying on `or ""`.
         "drug_names": [d for d in (r.get("drug_names") if has_text(r.get("drug_names")) else "").split("|") if d],
         "ot_drug_names": [d for d in (r.get("ot_drug_names") if has_text(r.get("ot_drug_names")) else "").split("|") if d],
+        "dgidb_drug_names": [d for d in (r.get("dgidb_drug_names") if has_text(r.get("dgidb_drug_names")) else "").split("|") if d],
         "file": filename,
     }
 

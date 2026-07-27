@@ -304,7 +304,7 @@ _JS = r"""
       var tr = document.createElement('tr');
       var groupClass = h.master_group === 'trial_failure_candidate' ? 'tf' : 'dr';
       var groupLabel = h.master_group === 'trial_failure_candidate' ? 'TF' : 'DR';
-      var drugs = (h.drug_names || []).concat(h.ot_drug_names || []).filter(function(v, i, a) { return a.indexOf(v) === i; });
+      var drugs = (h.drug_names || []).concat(h.ot_drug_names || []).concat(h.dgidb_drug_names || []).filter(function(v, i, a) { return a.indexOf(v) === i; });
       var drugInputs = drugs.map(function(d, i) {
         return '<label><input type="checkbox" data-drug="' + idx + '" value="' + d + '"> ' + d + '</label>';
       }).join('');

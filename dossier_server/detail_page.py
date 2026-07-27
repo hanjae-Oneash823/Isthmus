@@ -35,13 +35,24 @@ def _drug_checklist(label: str, names: list[str]) -> str:
     return f'<div style="margin-top:8px;"><div class="subtle" style="margin-bottom:4px;">{_esc(label)}</div>{boxes}</div>'
 
 
+def _pipe_list(row: pd.Series, col: str) -> list[str]:
+    # pd.notna guard is required: an empty CSV field round-trips through
+    # pandas as float NaN, and `NaN or ""` stays NaN (NaN is truthy), so a
+    # bare `str(val or "")` renders a literal "nan" checkbox.
+    val = row.get(col)
+    if pd.isna(val):
+        return []
+    return [d for d in str(val).split("|") if d]
+
+
 def drug_picker_section(row: pd.Series) -> str:
-    drug_names = [d for d in str(row.get("drug_names") or "").split("|") if d]
-    ot_names = [d for d in str(row.get("ot_drug_names") or "").split("|") if d]
-    all_names = list(dict.fromkeys(drug_names + ot_names))
+    drug_names = _pipe_list(row, "drug_names")
+    ot_names = _pipe_list(row, "ot_drug_names")
+    dgidb_names = _pipe_list(row, "dgidb_drug_names")
+    all_names = list(dict.fromkeys(drug_names + ot_names + dgidb_names))
 
     body = (
-        _drug_checklist("ChEMBL / Open Targets candidates", all_names)
+        _drug_checklist("ChEMBL / Open Targets / DGIdb candidates", all_names)
         if all_names else '<div class="subtle">no named drug candidates on record</div>'
     )
     return f"""
