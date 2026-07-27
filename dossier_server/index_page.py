@@ -56,11 +56,12 @@ th { position: sticky; top: 0; background: inherit; cursor: pointer; vertical-al
 .tf { color: #4a3aa7; } .dr { color: #1baf7a; }
 button { font-family: inherit; cursor: pointer; }
 select { font-family: inherit; font-size: 12px; }
-.drug-list { display: flex; flex-direction: column; gap: 2px; }
+.drug-list { display: flex; flex-direction: column; gap: 2px; max-width: 240px; white-space: normal; }
 .drug-list label {
-  font-size: 11px; white-space: nowrap; line-height: 1.4;
-  display: flex; align-items: center; gap: 4px; margin: 0;
+  font-size: 11px; white-space: normal; line-height: 1.4;
+  display: flex; align-items: flex-start; gap: 4px; margin: 0;
 }
+.drug-list label span { word-break: break-word; }
 .drug-list input[type=checkbox] { margin: 0; }
 .cart-item { border-bottom: 1px solid #eee; padding: 6px 0; font-size: 12px; }
 @media (prefers-color-scheme: dark) { .cart-item { border-color: #222; } }
@@ -306,7 +307,7 @@ _JS = r"""
       var groupLabel = h.master_group === 'trial_failure_candidate' ? 'TF' : 'DR';
       var drugs = (h.drug_names || []).concat(h.ot_drug_names || []).concat(h.dgidb_drug_names || []).filter(function(v, i, a) { return a.indexOf(v) === i; });
       var drugInputs = drugs.map(function(d, i) {
-        return '<label><input type="checkbox" data-drug="' + idx + '" value="' + d + '"> ' + d + '</label>';
+        return '<label><input type="checkbox" data-drug="' + idx + '" value="' + d + '" style="flex-shrink:0; margin-top:2px;"> <span>' + d + '</span></label>';
       }).join('');
       var detailUrl = '/hit/' + encodeURIComponent(h.gene) + '/' + encodeURIComponent(h.cell_type) + '?hit_enst=' + encodeURIComponent(h.hit_enst);
       var isTf = h.master_group === 'trial_failure_candidate';
