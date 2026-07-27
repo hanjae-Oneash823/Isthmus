@@ -18,42 +18,31 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from dossier import data
 from dossier.render import (
     THEME_TOGGLE_HTML, THEME_TOGGLE_JS, _BASE_CSS, _TIP_JS, _esc, _font_face_css,
-    donor_dot_section, header_section, sequence_section, stacked_bar_section,
+    donor_dot_section, drug_name_sources, header_section, sequence_section,
+    source_badges_html, stacked_bar_section,
 )
 from master_surveyor.m3_export import hit_folder_name
 from master_surveyor.config import DOCKING_DIR
 
 
-def _drug_checklist(label: str, names: list[str]) -> str:
-    if not names:
+def _drug_checklist(label: str, name_sources: dict[str, list[str]]) -> str:
+    if not name_sources:
         return ""
     boxes = "".join(
         f'<label style="display:block; font-size:12px; margin:3px 0;">'
-        f'<input type="checkbox" class="drug-check" value="{_esc(n)}"> {_esc(n)}</label>'
-        for n in names
+        f'<input type="checkbox" class="drug-check" value="{_esc(n)}"> {_esc(n)}'
+        f'{source_badges_html(sources)}</label>'
+        for n, sources in name_sources.items()
     )
     return f'<div style="margin-top:8px;"><div class="subtle" style="margin-bottom:4px;">{_esc(label)}</div>{boxes}</div>'
 
 
-def _pipe_list(row: pd.Series, col: str) -> list[str]:
-    # pd.notna guard is required: an empty CSV field round-trips through
-    # pandas as float NaN, and `NaN or ""` stays NaN (NaN is truthy), so a
-    # bare `str(val or "")` renders a literal "nan" checkbox.
-    val = row.get(col)
-    if pd.isna(val):
-        return []
-    return [d for d in str(val).split("|") if d]
-
-
 def drug_picker_section(row: pd.Series) -> str:
-    drug_names = _pipe_list(row, "drug_names")
-    ot_names = _pipe_list(row, "ot_drug_names")
-    dgidb_names = _pipe_list(row, "dgidb_drug_names")
-    all_names = list(dict.fromkeys(drug_names + ot_names + dgidb_names))
+    name_sources = drug_name_sources(row)
 
     body = (
-        _drug_checklist("ChEMBL / Open Targets / DGIdb candidates", all_names)
-        if all_names else '<div class="subtle">no named drug candidates on record</div>'
+        _drug_checklist("ChEMBL / Open Targets / DGIdb candidates", name_sources)
+        if name_sources else '<div class="subtle">no named drug candidates on record</div>'
     )
     return f"""
 <div class="card">

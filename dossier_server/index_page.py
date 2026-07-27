@@ -62,6 +62,16 @@ select { font-family: inherit; font-size: 12px; }
   display: flex; align-items: flex-start; gap: 4px; margin: 0;
 }
 .drug-list label span { word-break: break-word; }
+.src-badge {
+  display: inline-block; padding: 0 4px; border: 1px solid currentColor;
+  border-radius: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.03em;
+  line-height: 1.5; flex-shrink: 0; margin-top: 1px;
+}
+/* same palette as dossier/palette.py's ACCENT_CONTROL_HEX / ACCENT_AD_HEX,
+   so source colors read consistently between this table and the detail page */
+.src-badge.src-chembl { color: #2a78d6; }
+.src-badge.src-ot { color: #e34948; }
+.src-badge.src-dgidb { color: #767671; }
 .drug-list input[type=checkbox] { margin: 0; }
 .cart-item { border-bottom: 1px solid #eee; padding: 6px 0; font-size: 12px; }
 @media (prefers-color-scheme: dark) { .cart-item { border-color: #222; } }
@@ -261,6 +271,31 @@ _JS = r"""
   // (out of master_surveyor's scope), so that toggle is a no-op in practice.
   var groupFilter = { trial_failure_candidate: true, drug_repurposing_candidate: true, novel_target_candidate: true };
   function groupVisible(h) { return !!groupFilter[h.master_group]; }
+  // Mirrors dossier/render.py's drug_name_sources()/source_badges_html() --
+  // same source keys/labels/colors, kept in sync manually since this is the
+  // client-side (JS) rendering of the same per-hit drug_names/ot_drug_names/
+  // dgidb_drug_names fields the Python side reads from a pandas row.
+  var SOURCE_BADGE_META = {
+    chembl: ['C', 'src-chembl', 'ChEMBL'],
+    ot: ['OT', 'src-ot', 'Open Targets'],
+    dgidb: ['D', 'src-dgidb', 'DGIdb'],
+  };
+  function drugNameSources(h) {
+    var sources = {};
+    [['drug_names', 'chembl'], ['ot_drug_names', 'ot'], ['dgidb_drug_names', 'dgidb']].forEach(function(pair) {
+      (h[pair[0]] || []).forEach(function(name) {
+        if (!sources[name]) sources[name] = [];
+        sources[name].push(pair[1]);
+      });
+    });
+    return sources;
+  }
+  function sourceBadgesHtml(keys) {
+    return keys.map(function(k) {
+      var meta = SOURCE_BADGE_META[k];
+      return '<span class="src-badge ' + meta[1] + '" title="' + meta[2] + '">' + meta[0] + '</span>';
+    }).join('');
+  }
   var selectedIdx = {};       // idx (into currentHits) -> true, persists across re-renders until cleared
   var selectionHistory = [];  // stack of prior selectedIdx snapshots, one per completed drag -- "undo"
   var plotPoints = [];        // [{idx, x, y}] in SVG pixel space, from the last renderPlot() call
@@ -305,9 +340,9 @@ _JS = r"""
       var tr = document.createElement('tr');
       var groupClass = h.master_group === 'trial_failure_candidate' ? 'tf' : 'dr';
       var groupLabel = h.master_group === 'trial_failure_candidate' ? 'TF' : 'DR';
-      var drugs = (h.drug_names || []).concat(h.ot_drug_names || []).concat(h.dgidb_drug_names || []).filter(function(v, i, a) { return a.indexOf(v) === i; });
-      var drugInputs = drugs.map(function(d, i) {
-        return '<label><input type="checkbox" data-drug="' + idx + '" value="' + d + '" style="flex-shrink:0; margin-top:2px;"> <span>' + d + '</span></label>';
+      var nameSources = drugNameSources(h);
+      var drugInputs = Object.keys(nameSources).map(function(d) {
+        return '<label><input type="checkbox" data-drug="' + idx + '" value="' + d + '" style="flex-shrink:0; margin-top:2px;"> <span>' + d + '</span>' + sourceBadgesHtml(nameSources[d]) + '</label>';
       }).join('');
       var detailUrl = '/hit/' + encodeURIComponent(h.gene) + '/' + encodeURIComponent(h.cell_type) + '?hit_enst=' + encodeURIComponent(h.hit_enst);
       var isTf = h.master_group === 'trial_failure_candidate';

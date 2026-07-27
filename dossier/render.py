@@ -22,6 +22,40 @@ def _esc(s) -> str:
     return html.escape("" if pd.isna(s) else str(s))
 
 
+# name -> (badge text, CSS class suffix, tooltip label), shared by the static
+# dossier's drug cards and the live picker/table so provenance stays visibly
+# consistent across both surfaces.
+_SOURCE_BADGE_META = {
+    "chembl": ("C", "src-chembl", "ChEMBL"),
+    "ot": ("OT", "src-ot", "Open Targets"),
+    "dgidb": ("D", "src-dgidb", "DGIdb"),
+}
+
+
+def drug_name_sources(row: pd.Series) -> dict[str, list[str]]:
+    """Map each unique drug name on this row to the ordered list of source
+    keys ("chembl"/"ot"/"dgidb") it was found in, preserving first-seen
+    order. A name in multiple sources' pipe-separated columns collects one
+    entry per source it appears in.
+    """
+    sources: dict[str, list[str]] = {}
+    for col, key in (("drug_names", "chembl"), ("ot_drug_names", "ot"), ("dgidb_drug_names", "dgidb")):
+        val = row.get(col)
+        if pd.isna(val):
+            continue
+        for name in str(val).split("|"):
+            if name:
+                sources.setdefault(name, []).append(key)
+    return sources
+
+
+def source_badges_html(source_keys: list[str]) -> str:
+    return "".join(
+        f'<span class="src-badge {cls}" title="{_esc(label)}">{text}</span>'
+        for text, cls, label in (_SOURCE_BADGE_META[k] for k in source_keys)
+    )
+
+
 def _tip_esc(s: str) -> str:
     """Escape a multi-line tooltip string for an HTML attribute, turning
     real newlines into &#10; -- the JS layer reads the attribute back with
@@ -94,6 +128,12 @@ h2 {{ font-size: 15px; text-transform: uppercase; letter-spacing: 0.08em;
 .badge.change-decrease {{ color: var(--accent-ad); border-color: var(--accent-ad); }}
 .badge.change-increase {{ color: var(--accent-control); border-color: var(--accent-control); }}
 .badge.change-same {{ color: var(--text-primary); border-color: var(--text-primary); }}
+.src-badge {{ display: inline-block; padding: 0 4px; border-radius: 0;
+              border: 1px solid currentColor; font-size: 9px; font-weight: 700;
+              letter-spacing: 0.03em; margin-left: 4px; line-height: 1.5; }}
+.src-badge.src-chembl {{ color: var(--accent-control); }}
+.src-badge.src-ot {{ color: var(--accent-ad); }}
+.src-badge.src-dgidb {{ color: var(--text-secondary); }}
 .subtle {{ color: var(--text-secondary); font-size: 13px; }}
 .muted  {{ color: var(--muted); }}
 table {{ border-collapse: collapse; width: 100%; font-size: 13px; }}
