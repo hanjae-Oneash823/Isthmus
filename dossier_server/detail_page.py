@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sys
+import urllib.parse
 from pathlib import Path
 
 import pandas as pd
@@ -25,13 +26,25 @@ from master_surveyor.m3_export import hit_folder_name
 from master_surveyor.config import DOCKING_DIR
 
 
+def _structure_thumb(name: str) -> str:
+    # onerror hides the <img> entirely rather than showing a broken-image
+    # icon -- PubChem's name lookup won't resolve every raw DGIdb synonym.
+    src = "/api/drug_structure/" + urllib.parse.quote(name, safe="")
+    return (
+        f'<img src="{src}" loading="lazy" alt=""'
+        f' style="width:32px; height:32px; object-fit:contain; flex-shrink:0; background:var(--surface-1);"'
+        f' onerror="this.style.display=\'none\'">'
+    )
+
+
 def _drug_checklist(label: str, name_sources: dict[str, list[str]]) -> str:
     if not name_sources:
         return ""
     boxes = "".join(
-        f'<label style="display:block; font-size:12px; margin:3px 0;">'
-        f'<input type="checkbox" class="drug-check" value="{_esc(n)}"> {_esc(n)}'
-        f'{source_badges_html(sources)}</label>'
+        f'<label style="display:flex; align-items:center; gap:6px; font-size:12px; margin:3px 0;">'
+        f'<input type="checkbox" class="drug-check" value="{_esc(n)}" style="flex-shrink:0;">'
+        f'{_structure_thumb(n)}'
+        f'<span>{_esc(n)}{source_badges_html(sources)}</span></label>'
         for n, sources in name_sources.items()
     )
     return f'<div style="margin-top:8px;"><div class="subtle" style="margin-bottom:4px;">{_esc(label)}</div>{boxes}</div>'

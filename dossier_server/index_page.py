@@ -62,6 +62,8 @@ select { font-family: inherit; font-size: 12px; }
   display: flex; align-items: flex-start; gap: 4px; margin: 0;
 }
 .drug-list label span { word-break: break-word; }
+.drug-thumb { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; background: #f4f4f0; }
+@media (prefers-color-scheme: dark) { .drug-thumb { background: #16161a; } }
 .src-badge {
   display: inline-block; padding: 0 4px; border: 1px solid currentColor;
   border-radius: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.03em;
@@ -296,6 +298,12 @@ _JS = r"""
       return '<span class="src-badge ' + meta[1] + '" title="' + meta[2] + '">' + meta[0] + '</span>';
     }).join('');
   }
+  function structureThumbHtml(name) {
+    // onerror hides the thumbnail rather than showing a broken-image icon --
+    // PubChem's name lookup won't resolve every raw DGIdb synonym.
+    var src = '/api/drug_structure/' + encodeURIComponent(name);
+    return '<img src="' + src + '" loading="lazy" alt="" class="drug-thumb" onerror="this.style.display=\'none\'">';
+  }
   var selectedIdx = {};       // idx (into currentHits) -> true, persists across re-renders until cleared
   var selectionHistory = [];  // stack of prior selectedIdx snapshots, one per completed drag -- "undo"
   var plotPoints = [];        // [{idx, x, y}] in SVG pixel space, from the last renderPlot() call
@@ -342,7 +350,7 @@ _JS = r"""
       var groupLabel = h.master_group === 'trial_failure_candidate' ? 'TF' : 'DR';
       var nameSources = drugNameSources(h);
       var drugInputs = Object.keys(nameSources).map(function(d) {
-        return '<label><input type="checkbox" data-drug="' + idx + '" value="' + d + '" style="flex-shrink:0; margin-top:2px;"> <span>' + d + '</span>' + sourceBadgesHtml(nameSources[d]) + '</label>';
+        return '<label><input type="checkbox" data-drug="' + idx + '" value="' + d + '" style="flex-shrink:0; margin-top:2px;">' + structureThumbHtml(d) + ' <span>' + d + '</span>' + sourceBadgesHtml(nameSources[d]) + '</label>';
       }).join('');
       var detailUrl = '/hit/' + encodeURIComponent(h.gene) + '/' + encodeURIComponent(h.cell_type) + '?hit_enst=' + encodeURIComponent(h.hit_enst);
       var isTf = h.master_group === 'trial_failure_candidate';

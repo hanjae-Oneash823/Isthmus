@@ -16,3 +16,8 @@ BASE_DIR   = REPO_ROOT / "outputs/master_surveyor"
 CART_JSON  = BASE_DIR / "cart.json"
 JOBS_DIR   = BASE_DIR / "jobs"
 DOCKING_DIR = BASE_DIR / "docking"
+
+# 2D drug structure images (api_drug_structure.py), keyed by a hash of the
+# drug name -- resolved live from PubChem on first request, cached here
+# forever after (hits and misses both) so repeat page loads never re-fetch.
+DRUG_STRUCTURE_CACHE_DIR = BASE_DIR / "cache" / "drug_structures_2d"

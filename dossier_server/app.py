@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from flask import Flask, request
 
-from dossier_server import api_cart, api_export, api_hits, api_structure
+from dossier_server import api_cart, api_drug_structure, api_export, api_hits, api_structure
 from dossier_server.config import HOST, PORT
 from dossier_server.detail_page import render_detail
 from dossier_server.index_page import INDEX_HTML
@@ -25,6 +25,7 @@ def create_app() -> Flask:
     app.register_blueprint(api_cart.bp)
     app.register_blueprint(api_export.bp)
     app.register_blueprint(api_structure.bp)
+    app.register_blueprint(api_drug_structure.bp)
 
     @app.route("/")
     def index():
