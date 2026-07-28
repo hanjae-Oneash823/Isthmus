@@ -9,6 +9,9 @@ history on 2026-07-22.
 
 ## Layout
 
+<img width="1600" height="834" alt="image" src="https://github.com/user-attachments/assets/80c8d0fa-a87c-47fa-aab7-ff5cb1b88503" />
+
+
 - `dossier_server/` — the Flask app itself (this is what's branded "Isthmus"
   in the UI). Entry point: `python -m dossier_server.app`.
 - `master_surveyor/` — the hit-selection / structure-prediction / docking-export
