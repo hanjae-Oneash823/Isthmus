@@ -11,6 +11,9 @@ history on 2026-07-22.
 
 <img width="1600" height="834" alt="image" src="https://github.com/user-attachments/assets/80c8d0fa-a87c-47fa-aab7-ff5cb1b88503" />
 
+<img width="1436" height="827" alt="image" src="https://github.com/user-attachments/assets/575f4f6d-363d-4ef0-bfc0-d639ff23bcca" />
+
+<img width="1446" height="847" alt="image" src="https://github.com/user-attachments/assets/f87adccc-bb57-4e42-ae7c-966be522001a" />
 
 - `dossier_server/` — the Flask app itself (this is what's branded "Isthmus"
   in the UI). Entry point: `python -m dossier_server.app`.
